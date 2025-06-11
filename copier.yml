@@ -1,0 +1,41 @@
+_jinja_extensions:
+  - copier_templates_extensions.TemplateExtensionLoader
+  - _extensions/get_project_data.py:ContextUpdater
+
+_exclude:
+  - copier.yml
+  - README.md
+
+_tasks:
+  - "{{ _copier_python }} _extensions/update_backend_makefile.py"
+  - "{{ _copier_python }} _extensions/update_frontend_makefile.py"
+  - rm -rf _extensions
+
+_message_before_copy: |
+    Thanks for generating a project using our template.
+
+    You'll be asked a series of questions whose answers will be used to
+    generate a tailored project for you.
+
+_message_after_copy: |
+    ✨ Please check the modified files and run `git commit` to save them. ✨
+
+    You will need to add the following files
+
+    .gitlab-ci.yml
+    backend/zope.ini
+    backend/Makefile
+    frontend/Makefile
+
+    Well done! ✨✨✨✨
+
+
+
+
+domain:
+  type: str
+  help: Enter the domain where this site will be published
+
+varnish:
+  type: bool
+  help: Should we add a docker container with Varnish configuration?

@@ -1,0 +1,116 @@
+upstream backendproxy {
+    server backend:8080;
+}
+
+{%- if is_volto %}
+upstream frontendproxy {
+    server frontend:3000;
+}
+{%- endif %}
+
+{%- if varnish %}
+upstream varnishproxy_frontend {
+    server varnish-frontend:80;
+}
+
+upstream varnishproxy_backend {
+    server varnish-backend:80;
+}
+{%- endif %}
+
+log_format proxied '$remote_addr - $remote_user [$time_local] "$request" $status $body_bytes_sent "$http_referer" "$http_user_agent"';
+
+
+access_log  off;
+error_log  /var/log/nginx/error.log;
+
+server {
+    listen 80;
+    server_name ${SERVER_DOMAIN};
+    access_log  /var/log/nginx/access.log proxied;
+
+    add_header Referrer-Policy same-origin;
+
+    # Extra Headers
+    add_header X-Content-Type-Options nosniff;
+    add_header X-Frame-Options SAMEORIGIN always;
+
+    # Block pages from loading when they detect reflected XSS attacks
+    add_header X-XSS-Protection "1; mode=block";
+
+    client_max_body_size 20M;
+
+    {%- if is_volto %}
+
+        location ~ /api/\+\+resource\+\+zmi/ {
+            rewrite ^/(.*)$ /VirtualHostBase/https/${SERVER_DOMAIN}:443/Plone/VirtualHostRoot/_vh_api$1 break;
+            # Directly Zope
+            proxy_pass http://backendproxy;
+        }
+
+        # return 301 https://$host$request_uri;
+        location ~ /api($|/.*) {
+            rewrite ^/api($|/.*) /VirtualHostBase/https/${SERVER_DOMAIN}:443/Plone/VirtualHostRoot/_vh_api$1 break;
+            {%- if varnish %}
+            proxy_pass http://varnishproxy_backend;
+            {%- else %}
+            proxy_pass http://backendproxy;
+            {%- endif %}
+        }
+
+        location ~ /\+\+api\+\+($|/.*) {
+            rewrite ^/\+\+api\+\+($|/.*) /VirtualHostBase/https/${SERVER_DOMAIN}:443/Plone/++api++/VirtualHostRoot/$1 break;
+            {%- if varnish %}
+            proxy_pass http://varnishproxy_backend;
+            {%- else %}
+            proxy_pass http://backendproxy;
+            {%- endif %}
+        }
+    {%- endif %}
+
+    location ~ / {
+
+        {%- if is_volto %}
+        # Comment this 2 sections when using Classic UI Plone
+        location ~* \.(js|jsx|css|less|swf|eot|ttf|otf|woff|woff2)$ {
+            add_header Cache-Control "public";
+            expires +1y;
+            {%- if varnish %}
+            proxy_pass http://varnishproxy_frontend;
+            {%- else %}
+            proxy_pass http://frontendproxy;
+            {%- endif %}
+        }
+        location ~* static.*\.(ico|jpg|jpeg|png|gif|svg)$ {
+            add_header Cache-Control "public";
+            expires +1y;
+            {%- if varnish %}
+            proxy_pass http://varnishproxy_frontend;
+            {%- else %}
+            proxy_pass http://frontendproxy;
+            {%- endif %}
+        }
+        {%- endif %}
+
+        proxy_set_header        Host $host;
+        proxy_set_header        X-Real-IP $remote_addr;
+        proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header        X-Forwarded-Proto $scheme;
+        proxy_redirect http:// https://;
+
+        {%- if is_volto %}
+            {%- if varnish %}
+        proxy_pass http://varnishproxy_frontend;
+            {%- else %}
+        proxy_pass http://frontendproxy;
+            {%- endif %}
+
+        {%- else %}
+            {%- if varnish %}
+        proxy_pass http://varnishproxy_backend;
+            {%- else %}
+        proxy_pass http://backendproxy;
+            {%- endif %}
+        {%- endif %}
+    }
+}

@@ -1,0 +1,112 @@
+services:
+  backend:
+    container_name: backend
+    depends_on:
+      - zeo
+    environment:
+      # RELSTORAGE_DSN:
+      #   dbname='${DB_NAME:-plone}' user='${DB_USER:-plone}' host='${DB_HOST:-db}'
+      #   password='${DB_PASSWORD:-CTBolRnPQVoh}' port='${DB_PORT:-5432}'
+      ZEO_ADDRESS: zeo:8100
+      ZEO_SHARED_BLOB_DIR: true
+      ZOPE_FORM_MEMORY_LIMIT: 100MB
+      ZOPE_FORM_DISK_LIMIT: 100MB
+      ZOPE_FORM_MEMFILE_LIMIT: 100MB
+      CLIENT_HOME: /app/
+    volumes:
+      - ./data/zeo:/data
+
+    image: {{ image_prefix }}/backend:$VERSION
+    ports:
+      - 8080:8080
+    logging:
+      driver: loki
+      options:
+        loki-url: "http://prometheus.codesyntax.com:3100/loki/api/v1/push"
+
+  caddy:
+    container_name: caddy
+    image: caddy
+    ports:
+      - 80:80
+      - 443:443
+      - 443:443/udp
+    volumes:
+      - ./conf/Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    logging:
+      driver: loki
+      options:
+        loki-url: "http://prometheus.codesyntax.com:3100/loki/api/v1/push"
+
+{%- if is_volto %}
+  frontend:
+    container_name: frontend
+    depends_on:
+      - backend
+    environment:
+      RAZZLE_API_PATH: https://{{ domain }}
+      RAZZLE_INTERNAL_API_PATH: http://backend:8080/Plone
+
+    image: {{ image_prefix }}/frontend:$VERSION
+    logging:
+      driver: loki
+      options:
+        loki-url: "http://prometheus.codesyntax.com:3100/loki/api/v1/push"
+{%- endif %}
+
+  zeo:
+    container_name: zeo
+    image: plone/plone-zeo:6.0.0
+    volumes:
+      - ./data/zeo:/data
+    environment:
+      ZEO_PACK_KEEP_OLD: false
+
+  nginx:
+    container_name: nginx
+    depends_on:
+      - backend
+      - frontend
+    environment:
+      SERVER_DOMAIN: {{ domain }}
+    image: nginx
+    volumes:
+      - ./conf/default.conf.template:/etc/nginx/templates/default.conf.template
+    logging:
+      driver: loki
+      options:
+        loki-url: "http://prometheus.codesyntax.com:3100/loki/api/v1/push"
+
+  {%- if varnish %}
+  varnish-frontend:
+    container_name: varnish-frontend
+
+    ports:
+      - 3080:80
+    image: varnish:6.0
+    volumes:
+      - ./conf/varnish_frontend.vcl:/etc/varnish/default.vcl
+    depends_on:
+      - frontend
+
+  varnish-backend:
+    container_name: varnish-backend
+    ports:
+      - 4080:80
+    image: varnish:6.0
+    volumes:
+      - ./conf/varnish_backend.vcl:/etc/varnish/default.vcl
+    depends_on:
+      - backend
+  {%- endif %}
+
+volumes:
+  caddy_config: null
+  caddy_data: null
+  vol-site-data:
+    driver_opts:
+      device: ./data/db/
+      o: bind
+      type: none
