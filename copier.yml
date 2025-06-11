@@ -10,6 +10,7 @@ _exclude:
 _tasks:
   - "{{ _copier_python }} _extensions/update_backend_makefile.py"
   - "{{ _copier_python }} _extensions/update_frontend_makefile.py"
+  - "{{ _copier_python }} _extensions/remove_devops_folder.py"
   - rm -rf _extensions
 
 _message_before_copy: |
@@ -27,6 +28,8 @@ _message_after_copy: |
     backend/zope.ini
     backend/Makefile
     frontend/Makefile
+
+    And remove the devops folder.
 
     ✨✨✨✨ Well done! ✨✨✨✨
 
