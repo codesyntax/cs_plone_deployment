@@ -7,7 +7,7 @@ from pathlib import Path
 import shutil
 
 def main():
-    if Path(os.getcwd()) / 'devops' is not None:
+    if (Path(os.getcwd()) / 'devops').exists():
         shutil.rmtree(Path(os.getcwd()) / "devops")
         print("Devops folder removed succesfully")
 

@@ -9,7 +9,7 @@ from pathlib import Path
 
 def main():
     new_contents = []
-    if Path("frontend") / "Makefile":
+    if (Path("frontend") / "Makefile").exists():
         with open(Path("frontend") / "Makefile") as fp:
             for line in fp.readlines():
                 if line.startswith("IMAGE_NAME="):
