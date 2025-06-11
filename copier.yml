@@ -5,6 +5,7 @@ _jinja_extensions:
 _exclude:
   - copier.yml
   - README.md
+  - .git
 
 _tasks:
   - "{{ _copier_python }} _extensions/update_backend_makefile.py"
@@ -27,7 +28,7 @@ _message_after_copy: |
     backend/Makefile
     frontend/Makefile
 
-    Well done! ✨✨✨✨
+    ✨✨✨✨ Well done! ✨✨✨✨
 
 
 
