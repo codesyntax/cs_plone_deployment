@@ -1,3 +1,5 @@
+[![Copier](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/copier-org/copier/master/img/badge/badge-grayscale-inverted-border-orange.json)](https://github.com/copier-org/copier)
+
 # Copier template for Plone/Volto deployments
 
 This template is what we use at [CodeSyntax](https://www.codesyntax.com/en) to generate deployment configuration for our Plone/Volto based deployments
