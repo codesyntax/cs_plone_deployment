@@ -11,6 +11,7 @@ _tasks:
   - "{{ _copier_python }} _extensions/update_backend_makefile.py"
   - "{{ _copier_python }} _extensions/update_backend_dockerfile.py"
   - "{{ _copier_python }} _extensions/update_frontend_makefile.py"
+  - "{{ _copier_python }} _extensions/modify_instance_yaml.py"
   - "{{ _copier_python }} _extensions/remove_devops_folder.py"
   - rm -rf _extensions
 
@@ -27,8 +28,11 @@ _message_after_copy: |
 
     .gitlab-ci.yml
     backend/zope.ini
+    backend/instance.yaml
     backend/Makefile
+    backend/Dockerfile
     frontend/Makefile
+    deploy
 
     And remove the devops folder.
 
