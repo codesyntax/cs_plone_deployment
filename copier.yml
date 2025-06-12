@@ -27,6 +27,7 @@ _message_after_copy: |
     You will need to add the following files
 
     .gitlab-ci.yml
+    .release-it.json
     backend/zope.ini
     backend/instance.yaml
     backend/Makefile
