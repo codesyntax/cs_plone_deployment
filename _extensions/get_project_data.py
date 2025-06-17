@@ -14,7 +14,8 @@ class ContextUpdater(ContextHook):
 
         # Frontend Add-on name
         frontend_addon_name = "volto-dummy"
-        frontend_packages = os.listdir(Path(current_path) / "frontend" / "packages")
+
+        frontend_packages = list((Path(current_path) / "frontend" / "packages").resolve().glob("*"))
         if frontend_packages:
             frontend_addon_name = frontend_packages[0]
 
