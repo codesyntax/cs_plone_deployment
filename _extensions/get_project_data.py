@@ -28,7 +28,7 @@ class ContextUpdater(ContextHook):
 
         return {
             "project_name": current_folder_name,
-            "image_prefix": f"registry.gitlab.com/{current_folder_name}",
+            "image_prefix": f"registry.gitlab.com/codesyntax/{current_folder_name}",
             "is_volto": "frontend" in os.listdir("."),
             "is_classic": "frontend" not in os.listdir("."),
             "frontend_addon_name": frontend_addon_name,
