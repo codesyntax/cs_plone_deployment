@@ -106,6 +106,7 @@ server {
             {%- endif %}
 
         {%- else %}
+        rewrite ^/(.*)$ /VirtualHostBase/https/${SERVER_DOMAIN}:443/Plone/VirtualHostRoot/$1 break;
             {%- if varnish %}
         proxy_pass http://varnishproxy_backend;
             {%- else %}
