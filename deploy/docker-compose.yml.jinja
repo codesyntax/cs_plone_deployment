@@ -13,8 +13,10 @@ services:
       ZOPE_FORM_DISK_LIMIT: 100MB
       ZOPE_FORM_MEMFILE_LIMIT: 100MB
       CLIENT_HOME: /app/
+      PLONE_REGISTRY_YAML: /plone-conf/plone.yml
     volumes:
       - ./data/zeo:/data
+      - ./plone-conf:/plone-conf
 
     image: {{ image_prefix }}/backend:$VERSION
     ports:
