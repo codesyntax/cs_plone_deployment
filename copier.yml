@@ -24,18 +24,13 @@ _message_before_copy: |
 _message_after_copy: |
     ✨ Please check the modified files and run `git commit` to save them. ✨
 
-    You will need to add the following files
+    You will need to run the following command to add the following files to `git`:
 
-    .gitlab-ci.yml
-    .release-it.json
-    backend/zope.ini
-    backend/instance.yaml
-    backend/Makefile
-    backend/Dockerfile
-    frontend/Makefile
-    deploy
+      git add .gitlab-ci.yml .release-it.json backend/zope.ini backend/instance.yaml backend/Makefile backend/Dockerfile frontend/Makefile deploy
 
-    And remove the devops folder.
+    And the following command to remove the devops folder:
+
+      git rm -r --cached devops
 
     ✨✨✨✨ Well done! ✨✨✨✨
 
