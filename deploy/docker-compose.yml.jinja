@@ -68,7 +68,9 @@ services:
     container_name: nginx
     depends_on:
       - backend
+      {%- if is_volto %}
       - frontend
+      {%- endif %}
     environment:
       SERVER_DOMAIN: {{ domain }}
     image: nginx
