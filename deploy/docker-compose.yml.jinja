@@ -84,6 +84,7 @@ services:
         loki-url: "http://prometheus.codesyntax.com:3100/loki/api/v1/push"
 
   {%- if varnish %}
+    {%- if is_volto %}
   varnish-frontend:
     container_name: varnish-frontend
 
@@ -94,6 +95,7 @@ services:
       - ./conf/varnish_frontend.vcl:/etc/varnish/default.vcl
     depends_on:
       - frontend
+    {%- endif %}
 
   varnish-backend:
     container_name: varnish-backend
