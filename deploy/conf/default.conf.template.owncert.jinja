@@ -32,8 +32,18 @@ upstream varnishproxy_backend {
 }
 {%- endif %}
 
-log_format proxied '$remote_addr - $remote_user [$time_local] "$request" $status $body_bytes_sent "$http_referer" "$http_user_agent"';
-
+#log_format proxied '$remote_addr - $remote_user [$time_local] "$request" $status $body_bytes_sent "$http_referer" "$http_user_agent"';
+log_format json_combined escape=json '{'
+#    '"remote_ip":"$http_x_forwarded_for",'
+    '"time_local":"$time_local",'
+    '"remote_addr":"$http_x_forwarded_for",'
+    '"request":"$request",'
+    '"status": "$status",'
+    '"body_bytes_sent":"$body_bytes_sent",'
+    '"http_referer":"$http_referer",'
+    '"http_user_agent":"$http_user_agent",'
+    '"request_time":"$request_time"'
+'}';
 
 access_log  off;
 error_log  /var/log/nginx/error.log;
@@ -41,7 +51,7 @@ error_log  /var/log/nginx/error.log;
 server {
     listen 443 ssl;
     server_name ${SERVER_DOMAIN};
-    access_log  /var/log/nginx/access.log proxied;
+    access_log  /var/log/nginx/access.log json_combined;
 
     # This is the certificate with all the certificate chain (all certificates in one file)
     ssl_certificate /ssl/certificate.pem;
