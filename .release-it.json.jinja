@@ -44,8 +44,10 @@
       "in": "version.txt",
       "out": [
         "version.txt",
+        {%- if is_volto %}
         "frontend/package.json",
         "frontend/packages/{{frontend_addon_name}}/package.json",
+        {%- endif %}
         "backend/{{ python_version_file }}",
         {
           "file": "deploy/.env",
