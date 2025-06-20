@@ -50,10 +50,12 @@ restart-nginx: ## Restart nginx
 	docker compose down nginx
 	docker compose up nginx -d
 
+{%- if is_volto %}
 .PHONY: restart-frontend
 restart-frontend: ## Restart frontend
 	docker compose down frontend
 	docker compose up frontend -d
+{%- endif %}
 
 .PHONY: restart-backend
 restart-backend: ## Restart backend
@@ -79,17 +81,21 @@ logs-nginx: ## Show nginx logs
 logs-backend: ## Show backend logs
 	docker compose logs -f backend
 
+{%- if is_volto %}
 .PHONY: logs-frontend
 logs-frontend: ## Show frontend logs
 	docker compose logs -f frontend
+{%- endif %}
 
 .PHONY: upgrade
 upgrade: pull crons ## Download the new images and restart the services
 	docker compose pull
 	docker compose down backend
+    {%- if is_volto %}
 	docker compose down frontend
-	docker compose up backend -d
 	docker compose up frontend -d
+    {%- endif %}
+	docker compose up backend -d
 
 .PHONY: full-upgrade
 full-upgrade: pull crons ## Download the new images and restart the services
