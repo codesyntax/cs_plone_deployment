@@ -6,12 +6,16 @@ upstream backendproxy {
 upstream frontendproxy {
     server frontend:3000;
 }
-{%- endif %}
 
-{%- if varnish %}
+    {%- if varnish %}
 upstream varnishproxy_frontend {
     server varnish-frontend:80;
 }
+    {%- endif %}
+
+{%- endif %}
+
+{%- if varnish %}
 
 upstream varnishproxy_backend {
     server varnish-backend:80;
