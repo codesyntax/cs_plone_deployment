@@ -7,9 +7,6 @@ default:
     - echo "$CI_REGISTRY_PASSWORD" | docker login $CI_REGISTRY -u $CI_REGISTRY_USER --password-stdin
 
 stages:
-  # - check
-  # - test
-  # - build
   - ctb
   - bump
   - release
@@ -25,9 +22,17 @@ variables:
   {%- endif %}
   CONTAINER_VARNISH_RELEASE_IMAGE: $CI_REGISTRY_IMAGE/varnish
   VERSION_NUMBER: 1
+  UV_VERSION: "0.5"
+  PYTHON_VERSION: "3.12"
+  BASE_LAYER: alpine
+  # GitLab CI creates a separate mountpoint for the build directory,
+  # so we need to copy instead of using hard links.
+  UV_LINK_MODE: copy
 
 check-backend:
   stage: ctb
+  image: ghcr.io/astral-sh/uv:$UV_VERSION-python$PYTHON_VERSION-$BASE_LAYER
+
   before_script:
     - apk add --no-cache make bash python3 ncurses openssh-client-common git
   script:
@@ -40,7 +45,7 @@ check-backend:
 
 {%- if is_volto %}
 check-frontend:
-  image: node:20-alpine
+  image: node:lts-alpine
   stage: ctb
   before_script:
     - apk add --no-cache make bash python3 ncurses openssh-client-common git
@@ -60,17 +65,19 @@ test-backend:
   stage: ctb
   needs:
     - check-backend
-  image: python:3.12-bookworm
+  image: ghcr.io/astral-sh/uv:$UV_VERSION-python$PYTHON_VERSION-$BASE_LAYER
   before_script:
-    - apt update
-    - apt install build-essential python3 python3-dev git -y
+    - apk add --no-cache build-base make bash python3 ncurses openssh-client openssh-client-common git
     - mkdir -p ~/.ssh
     - chmod 700 ~/.ssh
     - touch ~/.ssh/config
     - 'echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+    # We need this in case we are using private repos to host packages
+    # added in the mx.ini, otherwise CI/CD can't access those packages
+    - eval `ssh-agent -s`
+    - echo "${DEPLOY_SSH_PRIVATE_KEY}" | tr -d '\r' | ssh-add - > /dev/null # add ssh k
   script:
     - cd backend
-    - make install
     - make test
   rules:
     - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
@@ -79,7 +86,7 @@ test-backend:
 
 {%- if is_volto %}
 test-frontend:
-  image: node:20-alpine
+  image: node:lts-alpine
   stage: ctb
   needs:
     - check-frontend
@@ -102,11 +109,19 @@ build-backend:
   needs:
     - test-backend
   before_script:
-    - apk add --no-cache make bash python3 ncurses openssh-client-common
+    - apk add --no-cache build-base make bash python3 curl ncurses openssh-client openssh-client-common
     - mkdir -p ~/.ssh
     - chmod 700 ~/.ssh
     - touch ~/.ssh/config
     - 'echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+    # We need this in case we are using private repos to host packages
+    # added in the mx.ini, otherwise CI/CD can't access those packages
+    - eval `ssh-agent -s`
+    - echo "${DEPLOY_SSH_PRIVATE_KEY}" | tr -d '\r' | ssh-add - > /dev/null # add ssh k
+    # We need to manually install `uv` because the base docker image doesn't have it
+    - curl -LsSf https://astral.sh/uv/install.sh | sh
+    - source $HOME/.local/bin/env
+
   script:
     - set -e # Stop if the execution of any command fails
     - cd backend
@@ -140,7 +155,7 @@ build-frontend:
 
 
 bump-version:
-  image: node:20-alpine
+  image: node:lts-alpine
   rules:
     - if: $CI_COMMIT_REF_NAME == "main"
   stage: bump
@@ -175,7 +190,6 @@ build-and-release:
     - if: $CI_COMMIT_REF_NAME == "main"
   stage: release
   before_script:
-    - apk add --no-cache make bash python3 ncurses openssh-client openssh-client-common
     # install basic packages
     - apk add --no-cache make bash python3 ncurses openssh-client openssh-client-common git
     # Git dance
