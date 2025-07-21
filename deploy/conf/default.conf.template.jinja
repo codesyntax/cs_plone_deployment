@@ -57,6 +57,9 @@ server {
 
     client_max_body_size 20M;
 
+    include conf/nginx-config-extra.conf;
+
+
     {%- if is_volto %}
 
         location ~ /api/\+\+resource\+\+zmi/ {
