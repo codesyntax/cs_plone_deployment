@@ -12,10 +12,9 @@ You first need to have a project created using [cookieplone](https://github.com/
 uvx cookieplone
 ```
 
-Then you need to run the following command to get the files in this template:
+Then you need to run the following command in your project folder to get the files in this template:
 
 ```bash
-cd <your-project-folder>
 uvx --with copier-templates-extensions copier copy gh:codesyntax/cs_plone_deployment . --trust
 ```
 
