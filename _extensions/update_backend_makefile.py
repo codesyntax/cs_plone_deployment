@@ -16,20 +16,31 @@ def main():
                 current_folder_name = Path(current_path).name
                 new_line = f"IMAGE_NAME_PREFIX=registry.gitlab.com/codesyntax/{current_folder_name}\n"
                 new_contents.append(new_line)
-            elif line.find("$(IMAGE_NAME_PREFIX)-backend:") != -1:
-                new_line = line.replace("$(IMAGE_NAME_PREFIX)-backend:", "$(IMAGE_NAME_PREFIX)/backend:")
-                new_contents.append(new_line)
-            elif line.find("$(IMAGE_NAME_PREFIX)-backend-acceptance:") != -1:
-                new_line = line.replace("$(IMAGE_NAME_PREFIX)-backend-acceptance:", "$(IMAGE_NAME_PREFIX)/backend-acceptance:")
+
+            elif line.startswith("\t@docker build . -t"):
+                # we do several things here:
+                # 1. add the --ssh default
+                new_line = line.replace(
+                    "@docker build . -t",
+                    "@docker build --ssh default . -t",
+                )
+                # 2. change the separator for the docker image name
+                new_line = new_line.replace(
+                    "$(IMAGE_NAME_PREFIX)-backend-acceptance:",
+                    "$(IMAGE_NAME_PREFIX)/backend-acceptance:",
+                )
+                new_line = new_line.replace(
+                    "$(IMAGE_NAME_PREFIX)-backend:", "$(IMAGE_NAME_PREFIX)/backend:"
+                )
                 new_contents.append(new_line)
             else:
                 new_contents.append(line)
 
-    with open(Path("backend") / "Makefile", 'w') as fp:
+    with open(Path("backend") / "Makefile", "w") as fp:
         fp.writelines(new_contents)
 
     print("Updated backend Makefile")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
