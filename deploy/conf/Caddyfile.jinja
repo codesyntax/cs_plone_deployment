@@ -1,5 +1,7 @@
 {{domain}}:443 {
 
+    encode zstd gzip
+
     # Set the backend server URL
     reverse_proxy * http://nginx:80 {
         header_up Host {http.request.host}
