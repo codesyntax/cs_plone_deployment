@@ -122,6 +122,14 @@ server {
         proxy_set_header        X-Forwarded-Proto $scheme;
 
         {%- if is_volto %}
+
+        # Correctly style ZMI pages
+        location ~ /api/\+\+resource\+\+zmi/ {
+            rewrite ^/(.*)$ /VirtualHostBase/https/${SERVER_DOMAIN}:443/Plone/VirtualHostRoot/$1 break;
+            # Directly Zope
+            proxy_pass http://backendproxy;
+        }
+
             {%- if varnish %}
         proxy_pass http://varnishproxy_frontend;
             {%- else %}
@@ -129,6 +137,14 @@ server {
             {%- endif %}
 
         {%- else %}
+
+        # Correctly style ZMI pages
+        location ~ /\+\+resource\+\+zmi/ {
+            rewrite ^/(.*)$ /VirtualHostBase/https/${SERVER_DOMAIN}:443/Plone/VirtualHostRoot/$1 break;
+            # Directly Zope
+            proxy_pass http://backendproxy;
+        }
+
         rewrite ^/(.*)$ /VirtualHostBase/https/${SERVER_DOMAIN}:443/Plone/VirtualHostRoot/$1 break;
             {%- if varnish %}
         proxy_pass http://varnishproxy_backend;
