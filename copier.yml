@@ -8,6 +8,7 @@ _exclude:
   - .git
 
 _tasks:
+  - "{{ _copier_python }} _extensions/update_backend_pyproject.py"
   - "{{ _copier_python }} _extensions/update_backend_makefile.py"
   - "{{ _copier_python }} _extensions/update_backend_dockerfile.py"
   - "{{ _copier_python }} _extensions/update_frontend_makefile.py"
