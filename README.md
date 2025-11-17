@@ -15,7 +15,7 @@ uvx cookieplone
 Then you need to run the following command in your project folder to get the files in this template:
 
 ```bash
-uvx --with copier-templates-extensions copier copy gh:codesyntax/cs_plone_deployment . --trust
+uvx --with copier-templates-extensions,tomli-w copier copy gh:codesyntax/cs_plone_deployment . --trust
 ```
 
 And voilà, you will get a `.gitlab-ci.yml` file with the GitLab CI/CD configuration, and a `deploy` folder with the `docker-compose.yml` and all other required configuration files.
