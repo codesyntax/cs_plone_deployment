@@ -1,0 +1,2 @@
+# Remember to add " > /proc/1/fd/1 2>&1" to each cron job to get the cron logs
+@weekly docker exec backend pack > /proc/1/fd/1 2>&1
