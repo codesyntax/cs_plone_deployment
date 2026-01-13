@@ -18,6 +18,8 @@ services:
     volumes:
       - ./data/zeo:/data
       - ./plone-conf:/plone-conf
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
     image: {{ image_prefix }}/backend:$VERSION
     ports:
