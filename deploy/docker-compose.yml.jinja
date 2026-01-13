@@ -1,6 +1,7 @@
 services:
   backend:
     container_name: backend
+    restart: unless-stopped
     depends_on:
       - zeo
     environment:
@@ -28,6 +29,7 @@ services:
 
   caddy:
     container_name: caddy
+    restart: unless-stopped
     image: caddy
     ports:
       - 80:80
@@ -45,6 +47,7 @@ services:
 {%- if is_volto %}
   frontend:
     container_name: frontend
+    restart: unless-stopped
     depends_on:
       - backend
     environment:
@@ -60,6 +63,7 @@ services:
 
   zeo:
     container_name: zeo
+    restart: unless-stopped
     image: plone/plone-zeo:6.0.0
     volumes:
       - ./data/zeo:/data
@@ -68,6 +72,7 @@ services:
 
   nginx:
     container_name: nginx
+    restart: unless-stopped
     depends_on:
       - backend
       {%- if is_volto %}
@@ -88,7 +93,7 @@ services:
     {%- if is_volto %}
   varnish-frontend:
     container_name: varnish-frontend
-
+    restart: unless-stopped
     ports:
       - 3080:80
     image: varnish:6.0
@@ -100,6 +105,7 @@ services:
 
   varnish-backend:
     container_name: varnish-backend
+    restart: unless-stopped
     ports:
       - 4080:80
     image: varnish:6.0
@@ -108,6 +114,7 @@ services:
     depends_on:
       - backend
   {%- endif %}
+
 #  scripts:
 #    profiles:
 #      - tools
@@ -117,17 +124,18 @@ services:
 #    container_name: scripts
 #    volumes:
 #      - /var/run/docker.sock:/var/run/docker.sock
-cron-runner:
-  image: ghcr.io/codesyntax/cron-runner:latest
-  container_name: cron-runner
-  restart: unless-stopped
-  volumes:
-    - ./docker-crontab.txt:/crontab.txt:ro
-    - /var/run/docker.sock:/var/run/docker.sock
-  logging:
-    driver: loki
-    options:
-      loki-url: "http://prometheus.codesyntax.com:3100/loki/api/v1/push"
+
+  cron-runner:
+    image: ghcr.io/codesyntax/cron-runner:latest
+    container_name: cron-runner
+    restart: unless-stopped
+    volumes:
+      - ./docker-crontab.txt:/crontab.txt:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+    logging:
+      driver: loki
+      options:
+        loki-url: "http://prometheus.codesyntax.com:3100/loki/api/v1/push"
 
 volumes:
   caddy_config: null
