@@ -128,3 +128,16 @@ full-deploy: full-upgrade
 crons: ## set all the cron jobs defined in crons.txt in the local crontab
 	( (crontab -l 2>/dev/null || true; cat crons.txt) | sort -u) | crontab -
 
+
+
+.PHONY: check the status
+status:
+	@ { set +x; } 2>/dev/null; \
+	echo "Services:"; \
+	for service in $$(docker compose config --services); do \
+		if [ -z "$$(docker compose ps -q $${service})" ]; then \
+		echo "❌ ERROR: '$${service}'"; \
+		else \
+		echo "✅ OK: $${service}"; \
+		fi \
+	done
