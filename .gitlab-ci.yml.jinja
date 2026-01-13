@@ -29,6 +29,30 @@ variables:
   # so we need to copy instead of using hard links.
   UV_LINK_MODE: copy
 
+check-configuration:
+  stage: ctb
+  rules:
+  - changes:
+      - deploy/conf/**
+
+  image: alpine:latest
+
+  before_script:
+    - apk add --no-cache bash curl docker-cli gettext
+  script:
+    - cd deploy
+
+    # test caddy
+    - cat ./conf/Caddyfile | docker run --rm -i caddy:latest caddy validate --adapter caddyfile --config -
+
+    # test nginx
+    - >
+      docker run --rm
+      -e SERVER_DOMAIN={{ domain }}
+      -v $(pwd)/conf/nginx-config-extra.conf:/etc/nginx/nginx-config-extra.conf:ro
+      -v $(pwd)/conf/default.conf.template:/etc/nginx/templates/default.conf.template
+      nginx nginx -t -c /etc/nginx/nginx.conf
+
 check-backend:
   stage: ctb
   image: ghcr.io/astral-sh/uv:$UV_VERSION-python$PYTHON_VERSION-$BASE_LAYER
