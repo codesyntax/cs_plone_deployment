@@ -14,18 +14,17 @@ def _generate_password():
 
 
 def main():
-    if (Path("frontend") / "Makefile").exists():
-        new_contents = []
-        with open(Path("deploy") / Path("conf") / "Caddyfile") as fp:
-            for line in fp.readlines():
-                new_line = line
-                if line.find("XXXXXXXXXXX") != -1:
-                    new_password = _generate_password().decode()
-                    new_line = line.replace("XXXXXXXXXXX", new_password)
-                new_contents.append(new_line)
+    new_contents = []
+    with open(Path("deploy") / Path("conf") / "Caddyfile") as fp:
+        for line in fp.readlines():
+            new_line = line
+            if line.find("XXXXXXXXXXX") != -1:
+                new_password = _generate_password().decode()
+                new_line = line.replace("XXXXXXXXXXX", new_password)
+            new_contents.append(new_line)
 
-        with open(Path("deploy") / Path("conf") / "Caddyfile", "w") as fp:
-            fp.writelines(new_contents)
+    with open(Path("deploy") / Path("conf") / "Caddyfile", "w") as fp:
+        fp.writelines(new_contents)
 
 
 if __name__ == "__main__":
