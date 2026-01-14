@@ -14,6 +14,7 @@ _tasks:
   - "{{ _copier_python }} _extensions/update_frontend_makefile.py"
   - "{{ _copier_python }} _extensions/modify_instance_yaml.py"
   - "{{ _copier_python }} _extensions/remove_devops_folder.py"
+  - "{{ _copier_python }} _extensions/update_caddyfile.py"
   - rm -rf _extensions
 
 _message_before_copy: |
