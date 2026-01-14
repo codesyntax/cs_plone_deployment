@@ -2,6 +2,13 @@
 
     encode zstd gzip
 
+    # Generate password running the following command:
+    # docker run --rm -it caddy caddy hash-password admin
+    basic_auth /api* {
+        admin XXXXXXXXXXX
+    }
+
+
     # Set the backend server URL
     reverse_proxy * http://nginx:80 {
         header_up Host {http.request.host}
