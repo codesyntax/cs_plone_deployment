@@ -26,7 +26,7 @@ help: ## Show the purpose of all comands
 .PHONY: help-txikia
 help-txikia: ## Show the purpose of relevant commands (start, restart, stop, ...)
     @echo "Useful commands:"
-	@echo "---------------"
+	@echo "----------------"
 	@grep -Eh '^[a-zA-Z_-]*(restart|start|status|stop)[a-zA-Z_-]*:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}'
 
 .PHONY: pull
@@ -136,7 +136,7 @@ crons: ## set all the cron jobs defined in crons.txt in the local crontab
 	( (crontab -l 2>/dev/null || true; cat crons.txt) | sort -u) | crontab -
 
 
-.PHONY: check the status
+.PHONY: check the status of the services
 status:
 	@ { set +x; } 2>/dev/null; \
 	echo "Status of the services:"; \
@@ -149,4 +149,7 @@ status:
 		fi \
 	done
 
+# No modifications are allowed in this Makefile
+# use the script/Makefile to add custom commands
 
+include scripts/Makefile
