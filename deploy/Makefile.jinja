@@ -2,7 +2,7 @@
 #     https://tech.davis-hansson.com/p/make/
 SHELL:=bash
 .ONESHELL:
-.SHELLFLAGS:=-xeu -o pipefail -O inherit_errexit -c
+.SHELLFLAGS:=-eu -o pipefail -O inherit_errexit -c
 .SILENT:
 .DELETE_ON_ERROR:
 MAKEFLAGS+=--warn-undefined-variables
@@ -18,14 +18,21 @@ YELLOW=`tput setaf 3`
 # Add the following 'help' target to your Makefile
 # And add help text after each target name starting with '\#\#'
 .PHONY: help
-help: ## This help message
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
+help: ## Show the purpose of all comands
+	@echo "All available commands:"
+	@echo "-----------------------"
+	@grep -Eh '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}'
+
+.PHONY: help-txikia
+help-txikia: ## Show the purpose of relevant commands (start, restart, stop, ...)
+    @echo "Useful commands:"
+	@echo "---------------"
+	@grep -Eh '^[a-zA-Z_-]*(restart|start|status|stop)[a-zA-Z_-]*:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}'
 
 .PHONY: pull
 pull: ## git pull repo main branch
 	@echo "$(GREEN) ===> Pulling"
 	git pull origin main
-
 
 .PHONY: stop
 stop: ## Stop all services
@@ -101,8 +108,8 @@ logs-cron-runner: ## Show cron-runner logs
 # 	docker compose build --no-cache scripts
 
 .PHONY: upgrade
-# upgrade: pull crons build-scripts ## Download the new images, build scripts and restart the services
-upgrade: pull crons ## Download the new images and restart the services
+# upgrade: pull crons build-scripts ## Download the new images, build scripts and restart backend and frontend services
+upgrade: pull crons ## Download the new images and restart backend and frontend services
 	docker compose pull
 	docker compose down backend
     {%- if is_volto %}
@@ -112,8 +119,8 @@ upgrade: pull crons ## Download the new images and restart the services
 	docker compose up backend -d
 
 .PHONY: full-upgrade
-# full-upgrade: pull crons build-scripts ## Download the new images, build scripts and restart the services
-full-upgrade: pull crons ## Download the new images and restart the services
+# full-upgrade: pull crons build-scripts ## Download the new images, build scripts and restart all services
+full-upgrade: pull crons ## Download the new images and restart all services
 	docker compose pull
 	docker compose down
 	docker compose up -d
@@ -129,15 +136,17 @@ crons: ## set all the cron jobs defined in crons.txt in the local crontab
 	( (crontab -l 2>/dev/null || true; cat crons.txt) | sort -u) | crontab -
 
 
-
 .PHONY: check the status
 status:
 	@ { set +x; } 2>/dev/null; \
-	echo "Services:"; \
-	for service in $$(docker compose config --services); do \
+	echo "Status of the services:"; \
+    echo "-----------------------"; \
+	for service in $$(docker compose config --services | sort); do \
 		if [ -z "$$(docker compose ps -q $${service})" ]; then \
 		echo "❌ ERROR: '$${service}'"; \
 		else \
 		echo "✅ OK: $${service}"; \
 		fi \
 	done
+
+
