@@ -23,8 +23,8 @@ help: ## Show the purpose of all commands
 	@echo "-----------------------"
 	@grep -Eh '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}'
 
-.PHONY: help-txikia
-help-txikia: ## Show the purpose of relevant commands (start, restart, stop, ...)
+.PHONY: help-summary
+help-summary: ## Show the purpose of relevant commands (start, restart, stop, ...)
     @echo "Useful commands:"
 	@echo "----------------"
 	@grep -Eh '^[a-zA-Z_-]*(restart|start|status|stop)[a-zA-Z_-]*:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}'
