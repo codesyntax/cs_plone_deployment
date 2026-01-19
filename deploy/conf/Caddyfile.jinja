@@ -2,11 +2,13 @@
 
     encode zstd gzip
 
+    {%- if is_volto %}
     # Generate password running the following command:
     # docker run --rm -it caddy caddy hash-password admin
     basic_auth /api* {
         admin XXXXXXXXXXX
     }
+    {%- endif %}
 
 
     # Set the backend server URL
