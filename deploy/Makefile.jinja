@@ -25,7 +25,7 @@ help: ## Show the purpose of all commands
 
 .PHONY: help-summary
 help-summary: ## Show the purpose of relevant commands (start, restart, stop, ...)
-    @echo "Useful commands:"
+	@echo "Useful commands:"
 	@echo "----------------"
 	@grep -Eh '^[a-zA-Z_-]*(restart|start|status|stop)[a-zA-Z_-]*:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}'
 
@@ -140,7 +140,7 @@ crons: ## set all the cron jobs defined in crons.txt in the local crontab
 status:
 	@ { set +x; } 2>/dev/null; \
 	echo "Status of the services:"; \
-    echo "-----------------------"; \
+	echo "-----------------------"; \
 	for service in $$(docker compose config --services | sort); do \
 		if [ -z "$$(docker compose ps -q $${service})" ]; then \
 		echo "❌ ERROR: '$${service}'"; \
