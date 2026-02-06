@@ -132,10 +132,8 @@ deploy: upgrade
 full-deploy: full-upgrade
 
 .PHONY: crons
-crons: ## set all the cron jobs defined in crons.txt in the local crontab
+crons: restart-cron-runner ## set all the cron jobs defined in crons.txt in the local crontab
 	( (crontab -l 2>/dev/null || true; cat crons.txt) | sort -u) | crontab -
-	docker compose down cron-runner
-	docker compose up cron-runner -d
 
 .PHONY: check the status of the services
 status:
