@@ -111,12 +111,14 @@ logs-cron-runner: ## Show cron-runner logs
 # upgrade: pull crons build-scripts ## Download the new images, build scripts and restart backend and frontend services
 upgrade: pull crons ## Download the new images and restart backend and frontend services
 	docker compose pull
+	docker compose down cron-runner
 	docker compose down backend
     {%- if is_volto %}
 	docker compose down frontend
 	docker compose up frontend -d
     {%- endif %}
 	docker compose up backend -d
+	docker compose up cron-runner -d
 
 .PHONY: full-upgrade
 # full-upgrade: pull crons build-scripts ## Download the new images, build scripts and restart all services
