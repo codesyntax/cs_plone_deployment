@@ -63,6 +63,40 @@ services:
         loki-url: "http://prometheus.codesyntax.com:3100/loki/api/v1/push"
 {%- endif %}
 
+
+{%- if postgres %}
+  postgres:
+    # Default: postgres:17 (tsvector ranking, no extensions needed)
+    # For BM25: PG_IMAGE=tensorchord/vchord-suite:pg17-latest docker compose up -d
+    image: ${PG_IMAGE:-postgres:17}
+    environment:
+      POSTGRES_USER: zodb
+      POSTGRES_PASSWORD: zodb
+      POSTGRES_DB: zodb
+    ports:
+      - "5433:5432"
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "zodb"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+
+  {%- if thumbor %}
+  thumbor:
+    # image: ghcr.io/bluedynamics/zodb-pgjsonb-thumborblobloader:thumbor-7.7.7_loader-0.3.0
+    build: ./thumbor
+    environment:
+      PGTHUMBOR_DSN: "dbname=zodb user=zodb password=zodb host=postgres"
+      THUMBOR_SECURITY_KEY: "{{ security_key }}"
+      ALLOW_UNSAFE_URL: "True"
+      PGTHUMBOR_PLONE_AUTH_URL: "{{ domain }}"
+      PGTHUMBOR_AUTH_CACHE_TTL: "60"
+  {%- endif %}
+
+{%- else %}
   zeo:
     container_name: zeo
     restart: unless-stopped
@@ -71,6 +105,8 @@ services:
       - ./data/zeo:/data
     environment:
       ZEO_PACK_KEEP_OLD: false
+
+{%- endif %}
 
   nginx:
     container_name: nginx

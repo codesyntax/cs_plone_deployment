@@ -1,0 +1,12 @@
+services:
+  thumbor:
+    # image: ghcr.io/bluedynamics/zodb-pgjsonb-thumborblobloader:thumbor-7.7.7_loader-0.3.0
+    build: .
+    environment:
+      PGTHUMBOR_DSN: "dbname=zodb user=zodb password=zodb host=172.17.0.1 port=5433"
+      THUMBOR_SECURITY_KEY: "{{ security_key }}"
+      ALLOW_UNSAFE_URL: "True"
+      PGTHUMBOR_PLONE_AUTH_URL: "http://plone.127.0.0.1.nip.io:8080/Plone"
+      PGTHUMBOR_AUTH_CACHE_TTL: "60"
+    ports:
+      - 8888:8888

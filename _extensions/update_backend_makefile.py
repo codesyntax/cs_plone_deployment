@@ -33,6 +33,15 @@ def main():
                     "$(IMAGE_NAME_PREFIX)-backend:", "$(IMAGE_NAME_PREFIX)/backend:"
                 )
                 new_contents.append(new_line)
+            elif (
+                line.find(
+                    "-c 2.1.1 --config-file instance.yaml gh:plone/cookiecutter-zope-instance"
+                )
+                != -1
+            ):
+                new_line = line.replace("-c 2.1.1", "-c 2.4.1")
+                new_contents.append(new_line)
+
             else:
                 new_contents.append(line)
 

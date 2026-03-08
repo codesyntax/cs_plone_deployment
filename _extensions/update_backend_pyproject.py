@@ -5,6 +5,7 @@ Update the pyproject.toml file in backend to add `Plone` as dependency
 import tomllib
 import tomli_w
 from pathlib import Path
+import argparse
 
 
 # cookieplone adds Products.CMFPlone as a dependency
@@ -44,7 +45,7 @@ def handle_dependency(dependency: str) -> str:
     return dependency
 
 
-def main():
+def main(postgres=False, thumbor=False):
     new_dependencies = []
     toml_file = {}
     with open(Path("backend") / "pyproject.toml", "rb") as fp:
@@ -55,6 +56,13 @@ def main():
             if new_dependency:
                 new_dependencies.append(new_dependency)
 
+    if postgres:
+        new_dependencies.append("zodb-pgjsonb")
+        new_dependencies.append("plone-pgcatalog")
+
+    if thumbor:
+        new_dependencies.append("plone-pgthumbor")
+
     toml_file["project"]["dependencies"] = new_dependencies
 
     with open(Path("backend") / "pyproject.toml", "wb") as fp:
@@ -64,4 +72,8 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--postgres", type=str, required=True)
+    parser.add_argument("--thumbor", type=str, required=True)
+    args = parser.parse_args()
+    main(postgres=args.postgres == "True", thumbor=args.thumbor == "True")

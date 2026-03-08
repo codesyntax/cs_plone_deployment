@@ -8,11 +8,13 @@ _exclude:
   - .git
 
 _tasks:
-  - "{{ _copier_python }} _extensions/update_backend_pyproject.py"
+  - "{{ _copier_python }} _extensions/update_backend_pyproject.py --postgres={{ postgres }} --thumbor={{ thumbor }}"
   - "{{ _copier_python }} _extensions/update_backend_makefile.py"
   - "{{ _copier_python }} _extensions/update_backend_dockerfile.py"
+  - "{{ _copier_python }} _extensions/update_backend_mxini.py --thumbor={{ thumbor }}"
+  - "{{ _copier_python }} _extensions/update_backend_metadataxml.py --postgres={{ postgres }} --thumbor={{ thumbor }} --python_code_path={{ python_code_path }}"
   - "{{ _copier_python }} _extensions/update_frontend_makefile.py"
-  - "{{ _copier_python }} _extensions/modify_instance_yaml.py"
+  - "{{ _copier_python }} _extensions/modify_instance_yaml.py --postgres={{ postgres }} --thumbor={{ thumbor }} --security_key={{ security_key }}"
   - "{{ _copier_python }} _extensions/remove_devops_folder.py"
   - "{{ _copier_python }} _extensions/update_caddyfile.py"
   - "{{ _copier_python }} _extensions/set_initial_version.py"
@@ -38,8 +40,6 @@ _message_after_copy: |
     ✨✨✨✨ Well done! ✨✨✨✨
 
 
-
-
 domain:
   type: str
   help: Enter the domain where this site will be published
@@ -47,3 +47,14 @@ domain:
 varnish:
   type: bool
   help: Should we add a docker container with Varnish configuration?
+
+postgres:
+  type: bool
+  help: Should we use a postgres based storage?
+  default: false
+
+thumbor:
+  type: bool
+  help: Should we use Thumbor to generate image scales?
+  default: false
+  when: "{{ postgres }}"

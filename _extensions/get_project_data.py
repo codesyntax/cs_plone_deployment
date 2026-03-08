@@ -1,6 +1,8 @@
 import os
 import tomllib
 from pathlib import Path
+import secrets
+
 try:
     from copier_templates_extensions import ContextHook
 except:
@@ -24,7 +26,7 @@ class ContextUpdater(ContextHook):
         pyproject = Path(current_path) / "backend" / "pyproject.toml"
         with open(pyproject, "rb") as fp:
             toml = tomllib.load(fp)
-            python_version_file = toml['tool']['hatch']['version']['path']
+            python_version_file = toml["tool"]["hatch"]["version"]["path"]
 
         return {
             "project_name": current_folder_name,
@@ -32,5 +34,9 @@ class ContextUpdater(ContextHook):
             "is_volto": "frontend" in os.listdir("."),
             "is_classic": "frontend" not in os.listdir("."),
             "frontend_addon_name": frontend_addon_name,
-            "python_version_file": python_version_file
+            "python_version_file": python_version_file,
+            "python_code_path": (
+                Path("backend") / python_version_file
+            ).parent.absolute(),
+            "security_key": secrets.token_urlsafe(48),
         }
