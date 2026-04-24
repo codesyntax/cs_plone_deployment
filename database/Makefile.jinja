@@ -40,7 +40,7 @@ start: ## Start all services
 
 .PHONY: zodb-convert
 zodb-convert: ## Convert a Filestorage to zodb-pgjsonb
-	uvx zodb-convert convert.conf -v
+	uvx --with="zodb_pgjsonb" zodb-convert convert.conf -v
 
 .PHONY: check the status of the services
 status:
