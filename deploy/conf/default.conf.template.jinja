@@ -78,14 +78,14 @@ server {
     {%- if is_volto %}
 
         location ~ /api/\+\+resource\+\+zmi/ {
-            rewrite ^/(.*)$ /VirtualHostBase/https/${SERVER_DOMAIN}:443/Plone/VirtualHostRoot/_vh_api$1 break;
+            rewrite ^/(.*)$ /VirtualHostBase/https/$http_host:443/Plone/VirtualHostRoot/_vh_api$1 break;
             # Directly Zope
             proxy_pass http://backendproxy;
         }
 
         # return 301 https://$host$request_uri;
         location ~ /api($|/.*) {
-            rewrite ^/api($|/.*) /VirtualHostBase/https/${SERVER_DOMAIN}:443/Plone/VirtualHostRoot/_vh_api$1 break;
+            rewrite ^/api($|/.*) /VirtualHostBase/https/$http_host:443/Plone/VirtualHostRoot/_vh_api$1 break;
             {%- if varnish %}
             proxy_pass http://varnishproxy_backend;
             {%- else %}
@@ -94,7 +94,7 @@ server {
         }
 
         location ~ /\+\+api\+\+($|/.*) {
-            rewrite ^/\+\+api\+\+($|/.*) /VirtualHostBase/https/${SERVER_DOMAIN}:443/Plone/++api++/VirtualHostRoot/$1 break;
+            rewrite ^/\+\+api\+\+($|/.*) /VirtualHostBase/https/$http_host:443/Plone/++api++/VirtualHostRoot/$1 break;
             {%- if varnish %}
             proxy_pass http://varnishproxy_backend;
             {%- else %}
@@ -131,12 +131,13 @@ server {
         proxy_set_header        X-Real-IP $remote_addr;
         proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header        X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-Host  $http_host;
 
         {%- if is_volto %}
 
         # Correctly style ZMI pages
         location ~ /api/\+\+resource\+\+zmi/ {
-            rewrite ^/(.*)$ /VirtualHostBase/https/${SERVER_DOMAIN}:443/Plone/VirtualHostRoot/$1 break;
+            rewrite ^/(.*)$ /VirtualHostBase/https/$http_host:443/Plone/VirtualHostRoot/$1 break;
             # Directly Zope
             proxy_pass http://backendproxy;
         }
@@ -151,12 +152,12 @@ server {
 
         # Correctly style ZMI pages
         location ~ /\+\+resource\+\+zmi/ {
-            rewrite ^/(.*)$ /VirtualHostBase/https/${SERVER_DOMAIN}:443/Plone/VirtualHostRoot/$1 break;
+            rewrite ^/(.*)$ /VirtualHostBase/https/$http_host:443/Plone/VirtualHostRoot/$1 break;
             # Directly Zope
             proxy_pass http://backendproxy;
         }
 
-        rewrite ^/(.*)$ /VirtualHostBase/https/${SERVER_DOMAIN}:443/Plone/VirtualHostRoot/$1 break;
+        rewrite ^/(.*)$ /VirtualHostBase/https/$http_host:443/Plone/VirtualHostRoot/$1 break;
             {%- if varnish %}
         proxy_pass http://varnishproxy_backend;
             {%- else %}
