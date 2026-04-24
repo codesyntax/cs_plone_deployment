@@ -15,6 +15,7 @@ services:
       ZOPE_FORM_MEMFILE_LIMIT: 100MB
       CLIENT_HOME: /app/
       PLONE_REGISTRY_YAML: /plone-conf/plone.yml
+
     volumes:
       - ./data/zeo:/data
       - ./plone-conf:/plone-conf
@@ -86,8 +87,7 @@ services:
 
   {%- if thumbor %}
   thumbor:
-    # image: ghcr.io/bluedynamics/zodb-pgjsonb-thumborblobloader:thumbor-7.7.7_loader-0.3.0
-    build: ./thumbor
+    image: ghcr.io/bluedynamics/zodb-pgjsonb-thumborblobloader:thumbor-7.7.7_loader-0.3.1
     environment:
       PGTHUMBOR_DSN: "dbname=zodb user=zodb password=zodb host=postgres"
       THUMBOR_SECURITY_KEY: "{{ security_key }}"

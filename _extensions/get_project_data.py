@@ -38,5 +38,5 @@ class ContextUpdater(ContextHook):
             "python_code_path": (
                 Path("backend") / python_version_file
             ).parent.absolute(),
-            "security_key": secrets.token_urlsafe(48),
+            "secret_key": secrets.token_urlsafe(48),
         }

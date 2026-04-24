@@ -25,11 +25,6 @@ def main(postgres=False, thumbor=False, python_code_path=""):
                 else:
                     new_contents.append(line)
 
-        import pdb
-
-        pdb.set_trace()
-        a = 1
-
         with open(path_to_file, "w") as fp:
             fp.writelines(new_contents)
 

@@ -99,6 +99,28 @@ logs-frontend: ## Show frontend logs
 	docker compose logs -f frontend
 {%- endif %}
 
+{%- if postgres %}
+.PHONY: restart-postgres
+restart-nginx: ## Restart nginx
+	docker compose down postgres
+	docker compose up postgres -d
+
+.PHONY: logs-postgres
+logs-postgres: ## Show postgres logs
+	docker compose logs -f postgres
+
+{%- if thumbor %}
+.PHONY: restart-thumbor
+restart-thumbor: ## Restart thumbor
+	docker compose down thumbor
+	docker compose up thumbor -d
+
+.PHONY: logs-thumbor
+logs-thumbor: ## Show thumbor logs
+	docker compose logs -f thumbor
+{%- endif %}
+
+{%- endif %}
 .PHONY: logs-cron-runner
 logs-cron-runner: ## Show cron-runner logs
 	docker compose logs -f cron-runner

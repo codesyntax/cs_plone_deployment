@@ -11,7 +11,6 @@ _tasks:
   - "{{ _copier_python }} _extensions/update_backend_pyproject.py --postgres={{ postgres }} --thumbor={{ thumbor }}"
   - "{{ _copier_python }} _extensions/update_backend_makefile.py"
   - "{{ _copier_python }} _extensions/update_backend_dockerfile.py"
-  - "{{ _copier_python }} _extensions/update_backend_mxini.py --thumbor={{ thumbor }}"
   - "{{ _copier_python }} _extensions/update_backend_metadataxml.py --postgres={{ postgres }} --thumbor={{ thumbor }} --python_code_path={{ python_code_path }}"
   - "{{ _copier_python }} _extensions/update_frontend_makefile.py"
   - "{{ _copier_python }} _extensions/modify_instance_yaml.py --postgres={{ postgres }} --thumbor={{ thumbor }} --security_key={{ security_key }}"
@@ -39,6 +38,11 @@ _message_after_copy: |
 
     ✨✨✨✨ Well done! ✨✨✨✨
 
+security_key:
+  type: str
+  # Don't prompt the user
+  when: false
+  default: "{{ secret_key }}"
 
 domain:
   type: str

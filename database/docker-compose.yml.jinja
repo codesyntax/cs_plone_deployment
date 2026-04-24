@@ -1,4 +1,6 @@
 services:
+
+  {%- if postgres %}
   postgres:
     # Default: postgres:17 (tsvector ranking, no extensions needed)
     # For BM25: PG_IMAGE=tensorchord/vchord-suite:pg17-latest docker compose up -d
@@ -28,3 +30,17 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+
+  {%- if thumbor %}
+  thumbor:
+    image: ghcr.io/bluedynamics/zodb-pgjsonb-thumborblobloader:0.4.2
+    environment:
+      PGTHUMBOR_DSN: "dbname=zodb user=zodb password=zodb host=postgres"
+      THUMBOR_SECURITY_KEY: "{{ security_key }}"
+      ALLOW_UNSAFE_URL: "True"
+      PGTHUMBOR_PLONE_AUTH_URL: "http://plone.127.0.0.1.nip.io:8080/Plone"
+      PGTHUMBOR_AUTH_CACHE_TTL: "60"
+    ports:
+      - 8888:8888
+  {%- endif %}
+  {%- endif %}
