@@ -2,14 +2,21 @@ services:
   backend:
     container_name: backend
     restart: unless-stopped
+    {%- if postgres %}
+    depends_on:
+      - postgres
+    {%- else %}
     depends_on:
       - zeo
+    {%- endif %}
     environment:
-      # RELSTORAGE_DSN:
-      #   dbname='${DB_NAME:-plone}' user='${DB_USER:-plone}' host='${DB_HOST:-db}'
-      #   password='${DB_PASSWORD:-CTBolRnPQVoh}' port='${DB_PORT:-5432}'
+    {%- if postgres %}
+      ZODB_PGJSONB_DSN: dbname='${DB_NAME:-zodb}' user='${DB_USER:-zodb}' password='${DB_PASSWORD:-zodb}' host='${DB_HOST:-postgres}'
+      ZODB_PGJSONB_HISTORY_PRESERVING: true
+    {%- else %}
       ZEO_ADDRESS: zeo:8100
       ZEO_SHARED_BLOB_DIR: true
+    {%- endif %}
       ZOPE_FORM_MEMORY_LIMIT: 100MB
       ZOPE_FORM_DISK_LIMIT: 100MB
       ZOPE_FORM_MEMFILE_LIMIT: 100MB
