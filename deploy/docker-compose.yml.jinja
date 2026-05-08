@@ -94,6 +94,8 @@ services:
 
   {%- if thumbor %}
   thumbor:
+    depends_on:
+      - postgres
     image: ghcr.io/bluedynamics/zodb-pgjsonb-thumborblobloader:0.4.2
     environment:
       PGTHUMBOR_DSN: "dbname=zodb user=zodb password=zodb host=postgres"
