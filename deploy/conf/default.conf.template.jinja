@@ -22,6 +22,12 @@ upstream varnishproxy_backend {
 }
 {%- endif %}
 
+{%- if thumber %}
+upstream thumbor {
+    server thumbor:8888;
+}
+{%- endif}
+
 
 #log_format proxied '$remote_addr - $remote_user [$time_local] "$request" $status $body_bytes_sent "$http_referer" "$http_user_agent"';
 log_format json_combined escape=json '{'
@@ -66,11 +72,16 @@ server {
     {%- if thumbor %}
     location /thumbor/ {
         rewrite ^/thumbor/(.*)$ /$1 break;
-        proxy_pass http://thumbor:8888;
+        proxy_pass http://thumbor;
         proxy_set_header Host              $host;
         proxy_set_header X-Real-IP         $remote_addr;
         proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
-        # Cookie is forwarded automatically — nginx passes all request headers
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        # Cache scaled images at the proxy level
+        proxy_cache_valid 200 30d;
+        proxy_cache_valid 404 1m;
+
     }
     {%- endif %}
 
@@ -103,7 +114,7 @@ server {
         }
     {%- endif %}
 
-    location ~ / {
+    location / {
 
         {%- if is_volto %}
         # Comment this 2 sections when using Classic UI Plone
@@ -127,10 +138,10 @@ server {
         }
         {%- endif %}
 
-        proxy_set_header        Host $host;
-        proxy_set_header        X-Real-IP $remote_addr;
-        proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header        X-Forwarded-Proto $scheme;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
         proxy_set_header X-Forwarded-Host  $http_host;
 
         {%- if is_volto %}

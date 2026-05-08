@@ -13,6 +13,10 @@ services:
     {%- if postgres %}
       ZODB_PGJSONB_DSN: dbname='${DB_NAME:-zodb}' user='${DB_USER:-zodb}' password='${DB_PASSWORD:-zodb}' host='${DB_HOST:-postgres}'
       ZODB_PGJSONB_HISTORY_PRESERVING: true
+      {%- if thumbor %}
+      PGTHUMBOR_SECURITY_KEY: {{ security_key }}
+      PGTHUMBOR_SERVER_URL: https://{{domain}}/thumbor/
+      {%- endif %}
     {%- else %}
       ZEO_ADDRESS: zeo:8100
       ZEO_SHARED_BLOB_DIR: true

@@ -24,13 +24,6 @@
     }
     {%- endif %}
 
-
-    {%- if thumbor %}
-    handle_path /thumbor* {
-        reverse_proxy thumbor
-    }
-    {%- endif %}
-
     # Set the backend server URL
     reverse_proxy * http://nginx:80 {
         header_up Host {http.request.host}
@@ -53,17 +46,6 @@
     header Strict-Transport-Security "max-age=63072000"
 
 }
-{%- if thumbor %}
-thumbor.{{domain}}::443 {
-    reverse_proxy * http://thumbor {
-        header_up Host {http.request.host}
-        header_up X-Forwarded-Proto {http.request.scheme}
-        header_up X-Real-IP {remote}
-        header_up X-Forwarded-For {remote}
-    }
-}
-
-{%-endif %}
 
 # Adjust to remove the www or put it
 # {{domain}}:443 {
