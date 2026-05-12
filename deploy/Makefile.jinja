@@ -101,7 +101,7 @@ logs-frontend: ## Show frontend logs
 
 {%- if postgres %}
 .PHONY: restart-postgres
-restart-nginx: ## Restart nginx
+restart-postgres: ## Restart postgres
 	docker compose down postgres
 	docker compose up postgres -d
 
